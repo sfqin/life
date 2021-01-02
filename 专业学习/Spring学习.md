@@ -97,7 +97,7 @@ public class SpringTestService {
         baseResult.setMessage("success");
         return baseResult;
     }
-postProcessBeanFactory invokeBeanFactoryPostProcessors initMessageSource
+
 }
 ```
 
