@@ -40,27 +40,27 @@ Spring Ioc依赖查找的方式
 - 根据Java注解查找。
 
 ```java
-        //通过xml配置bean的方式启动spring应用上下文
-        ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath:/application.properties");
+//通过xml配置bean的方式启动spring应用上下文
+ClassPathXmlApplicationContext classPathXmlApplicationContext = new ClassPathXmlApplicationContext("classpath:/application.properties");
 
-        //父类接收
-        BeanFactory beanFactory = new ClassPathXmlApplicationContext("classpath:/application.properties");
+//父类接收
+BeanFactory beanFactory = new ClassPathXmlApplicationContext("classpath:/application.properties");
 
-        //根据名称获取bean
-        BaseResult bean1 = (BaseResult) beanFactory.getBean("baseResult");
+//根据名称获取bean
+BaseResult bean1 = (BaseResult) beanFactory.getBean("baseResult");
 
-        //根据类型获取单个bean 有多个会报错 需指定primary
-        BaseResult bean = beanFactory.getBean(BaseResult.class);
+//根据类型获取单个bean 有多个会报错 需指定primary
+BaseResult bean = beanFactory.getBean(BaseResult.class);
 
-        //根据类型获取beanList
-        if(beanFactory instanceof ListableBeanFactory) {
-            ListableBeanFactory listableBeanFactory = (ListableBeanFactory) beanFactory;
-            Map<String, BaseResult> beansOfType = listableBeanFactory.getBeansOfType(BaseResult.class);
-        }
+//根据类型获取beanList
+if(beanFactory instanceof ListableBeanFactory) {
+    ListableBeanFactory listableBeanFactory = (ListableBeanFactory) beanFactory;
+    Map<String, BaseResult> beansOfType = listableBeanFactory.getBeansOfType(BaseResult.class);
+}
 
-        //根据注解查找 (可以自定义注解)
-        if(beanFactory instanceof ListableBeanFactory) {
-            ListableBeanFactory listableBeanFactory = (ListableBeanFactory) beanFactory;
-            Map<String, BaseResult> beansOfType = (Map) listableBeanFactory.getBeansWithAnnotation(Autowired.class);
-        }
+//根据注解查找 (可以自定义注解)
+if(beanFactory instanceof ListableBeanFactory) {
+    ListableBeanFactory listableBeanFactory = (ListableBeanFactory) beanFactory;
+    Map<String, BaseResult> beansOfType = (Map) listableBeanFactory.getBeansWithAnnotation(Autowired.class);
+}
 ```
