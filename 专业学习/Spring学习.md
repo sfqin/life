@@ -67,7 +67,7 @@ if(beanFactory instanceof ListableBeanFactory) {
 
 BeanFactory与ApplicationContext 谁才是Ioc容器?
 
-- BeanFactory 是一个底层的Ioc容器，ApplicationContext 是在其基础上增加更多的企业级特性，比如AOP面向切面，国际化，注解，事件发布等。ApplicationContext 实现将BeanFactory 已属性的方式组合进来，和直接的BeanFactory 并不是同一个对象。
+- BeanFactory 是一个底层的Ioc容器，ApplicationContext 是在其基础上增加更多的企业级特性，比如AOP面向切面，国际化，注解，事件发布等。ApplicationContext 实现将BeanFactory 已属性的方式组合进来，和直接的BeanFactory 并不是同一个对象。FactoryBean 是一种创建bean的方式，帮助实现复杂的初始化逻辑。
 
 ```java
 // demo ApplicationContext 作为更强大的超集，扩展的java注解方式定义bean与获取bean
@@ -113,3 +113,36 @@ Spring Ioc 容器的生命周期
   7. 初始化时间，监听器等
 - 运行
 - 停止
+
+实例化Spring bean方式
+
+- 构造器（配置元信息：XML，Java注解，Java API）
+- 静态工厂方法（配置元信息：XML，Java注解，Java API）
+- Bean工厂方法（配置元信息：XML，Java注解，Java API）
+- 通过FactoryBean（配置元信息：XML，Java注解，Java API）
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <!--静态方法创建实例-->
+    <bean id="create-by-static-method" class="cn.wesure.msfjava.domain.BaseResult" factory-method="createOne" />
+
+    <!--实例方法创建， 定义一个工厂bean factory-bean 定义bean工厂 factory-method 定义工厂获取bean的方法-->
+    <bean id="create-by-instance-method" class="cn.wesure.msfjava.domain.BaseResult" factory-bean="xxx" factory-method="createOne" />
+
+    <!--beanFactory创建 定义个beanFactory 实现 BeanFactory接口 -->
+    <bean id="create-by-factory-method" class="xxx"  />
+    
+</beans>
+```
+
+初始化 Spring bean方式
+
+- @PostConsturct
+- 实现 InitializingBean 接口的 afterPropertiesSet() 方法
+- 自定义初始化方式（XML，Java注解，Java API）
+
+BeanFactory.getBean 操作是否线程安全，是线程安全的，会加互斥锁
