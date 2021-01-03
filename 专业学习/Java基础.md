@@ -16,3 +16,8 @@ hashCode 是一个int类型的数字，计算方式如下：首先将String转�
 
 #### new BigDecimal（double a）不要用，使用 BigDecimal.valueOf(3.5f) 来自官方建议
 
+### Java集合使用stack与queue实现
+
+- stack与queue均可使用ArrayDeque与LinkedList来实现
+- stack操作，入栈push，出栈pop，获取栈顶元素peek
+- queue操作，入队offer，出队poll，获取队首元素peek
