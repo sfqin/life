@@ -138,10 +138,33 @@
 
 > 对象的内存分配，主要是在堆上，间接牵连到栈，对象主要分配在新生代的Eden区上，少数情况下可能直接分配在老年代，分配规则不固定，取决于当前的垃圾收集器组合以及相关的JVM参数配置。
 
-对象优先分配在Eden区
+#### 对象优先分配在Eden区
 
 - 大多数情况下，对象在新生代的Eden区中分配。当Eden区没有足够的空间进行分配时，会触发一次Minor GC。
   - Minor GC：回收新生代（Eden与Survivor），因为Java对象大多都具备朝生夕死的特征，所以Minor GC 非常频繁，一般回收速度也比较快。
   - Major GC / Full GC：回收老年代，出现了Major GC，经常会伴随至少一次的Minor GC，但是并非绝对，Major GC的速度一般会比Minor GC慢10倍以上。JVM规范中，Major GC和Full GC没有正式的定义，一般简单认为 Major GC清理老年代，Full GC清理整个堆内存。
 
-大对象直接进入老年代
+#### 大对象直接进入老年代
+
+> 一个大对象能够存入Eden区的概率比较小，发生分配担保的概率比较大，而分配担保需要涉及大量的复制，就会造成效率低下。虚拟机提供了一个 -XX:PretenureSizeThreshold 参数，令大于这个值的对象直接在老年代分配，这样做的目的就是避免在Eden区及两个Survivor区之间发生大量的内存复制。
+
+#### 长期存活的对象进入老年代
+
+> JVM 给每个对象定义了一个对象年龄计数器。当新生代发生一次Minor GC后，存活下来的对象年龄+1，当年龄超过一定值时，就将超过该值的所有对象转移到老年代中。  -XXMaxTenuringThreshold 参数控制。
+
+#### 动态对象年龄判断
+
+> 如果当前新生代中的Survivor中，相同年龄所有的对象大小总和大于Survivor空间的一半，年龄 >= 该年龄的对象就可以直接进入老年代，无须等到XXMaxTenuringThreshold 中要求的年龄
+
+#### 空间分配担保
+
+> 只要老年代的连续空间大于新生代对象总大小或者历次晋升的平均大小，就会进行Minor GC，否则将进行 Full GC。通过清除老年代中废弃数据来扩大老年代空闲空间，以便给新生代作担保。
+
+#### 可能触发Full GC 的场景
+
+- System.gc 方法的调用。此方法是建议JVM进行Full GC，不是一定，但是在很多情况下它会触发 Full GC，从而增加Full GC的频率。通常情况下我们只需要让虚拟机自己去管理内存即可，可以通过 XX:+ DisableExplicitGC 来禁止调用 System.gc()。
+- 老年代空间不足。老年代空间不足会触发Full GC，若进行该操作后空间依然不足，则会抛出如下错误：java.lang.OutOfMemoryError: Java heap space
+- 永久代空间不足。JVM规范中运行时数据区的方法区，在Hotspot中称为永久代，存放一些类信息、常量、静态变量等数据，当系统要加载的类，反射的类和调用的方法较多时，永久代可能会被占满，会触发Full GC。如果经过 Full GC 仍然回收不了，那么JVM会抛出如下错误信息：java.lang.OutOfMemoryError: PermGen space
+- CMS GC 时出现担保失败。concurrent mode failure 是在执行 CMS GC的过程中同时有对象要放入老年代，因此是老年代空间不足造成的。
+- 统计得到的Minor GC 晋升到老年代的平均大小大于老年代的剩余空间。
+
